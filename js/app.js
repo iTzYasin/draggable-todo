@@ -25,9 +25,11 @@ function modalActions(){
     overlay.classList.toggle('active')  
 }
 function submitModal(){
-    createNewStatus()
-    modalActions()
-    todoInput.value = ''
+    if(todoInput.value !== ''){
+        createNewStatus()
+        modalActions()
+        todoInput.value = ''
+    }
 }
 function createNewStatus(){
     let todoText = todoInput.value
