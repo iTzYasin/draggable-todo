@@ -13,11 +13,11 @@ closeModal.addEventListener('click', modalActions)    // event of open and close
 overlay.addEventListener('click', modalActions)
 //! ...............................................
 submitNewTodo.addEventListener('click', submitModal)
-noStatusArea.addEventListener('click', closeTodoActive)
-StatusArea.forEach((arae)=>{
-    arae.addEventListener('dragstart', drapHandeler)
-    arae.addEventListener('dragover', (event)=> event.preventDefault())
-    arae.addEventListener('drop', dropHandeler)
+StatusArea.forEach((area)=>{
+    area.addEventListener('dragstart', drapHandeler)
+    area.addEventListener('dragover', (event)=> event.preventDefault())
+    area.addEventListener('drop', dropHandeler)
+    area.addEventListener('click', closeTodoActive)
 })
 
 function modalActions(){
