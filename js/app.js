@@ -19,44 +19,53 @@ StatusArea.forEach((area)=>{
     area.addEventListener('drop', dropHandeler)
     area.addEventListener('click', closeTodoActive)
 })
-
+document.addEventListener('DOMContentLoaded', getTodo);
 function modalActions(){
     modal.classList.toggle('active');                   // function of open and close modal with click
     overlay.classList.toggle('active')  
 }
-function submitModal(){
+function submitModal(ev){
     if(todoInput.value !== ''){
-        createNewStatus()
+        createNewStatus(todoInput.value ,true , `todo-${todoCounter}`)
         modalActions()
         todoInput.value = ''
     }
 }
-function createNewStatus(){
-    let todoText = todoInput.value
+
+
+// document.querySelectorAll('.todo').forEach((todo) => {
+//     const uniqueId = `todo-${todoCounter}`;
+//     todo.setAttribute('id', uniqueId);
+//     todoCounter++; 
+// });
+
+
+function createNewStatus(todoText , isSave ,id = `todo-${todoCounter}`){
     const newTodoCreate = document.createElement('div')
     newTodoCreate.setAttribute('draggable' , 'true')
     newTodoCreate.classList.add('todo')
-    const uniqueId = `todo-${todoCounter}`;
+    if(isSave) localStorageSave(id, todoText)    //! localStorage Save
     todoCounter++
-    newTodoCreate.setAttribute('id', uniqueId);
+    newTodoCreate.setAttribute('id', id);
     newTodoCreate.innerHTML = `
     ${todoText}
     <span class="close">&times;</span>
     `;
     noStatusArea.appendChild(newTodoCreate)
+    newTodoCreate.querySelector('.close').addEventListener('click', (event) => {
+        closeTodoActive(event, id);
+    });
 }
-function closeTodoActive(event){
+function closeTodoActive(event , id){
     if(event.target.classList.contains('close')){
         let parentElm = event.target.parentNode
         parentElm.remove()
+        const todoList = JSON.parse(localStorage.getItem('todo'));
+        const updatedList = todoList.filter(todo => todo.id != id);
+        localStorage.setItem('todo', JSON.stringify(updatedList));
     }
 }
 /////////////////////////////////////////////////////////////
-document.querySelectorAll('.todo').forEach((todo) => {
-    const uniqueId = `todo-${todoCounter}`;
-    todo.setAttribute('id', uniqueId);
-    todoCounter++; 
-});
 function drapHandeler(ev) { 
     ev.dataTransfer.setData('elemDataID', ev.target.getAttribute('id'))
 }
@@ -65,7 +74,42 @@ function dropHandeler(ev){
     const elmDataId = ev.dataTransfer.getData('elemDataID')
     let targetElm = document.getElementById(elmDataId)
     document.getElementById(ev.toElement.id).appendChild(targetElm)
+    updateTodoLocation(elmDataId, ev.toElement.id);
 }
+
+function updateTodoLocation(id, containerId) {
+    const todoList = localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')) : [];
+    const todoIndex = todoList.findIndex((todo) => todo.id === id);
+    if (todoIndex !== -1) {
+        todoList[todoIndex].container = containerId;
+        localStorage.setItem('todo', JSON.stringify(todoList));
+    }
+}
+
+function localStorageSave(id ,text) {
+    const todoList = localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')) : [];
+    const todoItemLocal = {
+        id,
+        text
+    };
+    todoList.push(todoItemLocal)
+    localStorage.setItem('todo' , JSON.stringify(todoList))
+    console.log(todoList);
+}
+function getTodo(toElement) {
+    const todoList = localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')) : [];
+    todoList.forEach(todo => {
+        createNewStatus(todo.text ,false , todo.id)
+        const container = document.getElementById(todo.container || 'no_status');
+        const todoElm = document.getElementById(todo.id);
+        if (container) container.appendChild(todoElm);
+    });
+}
+
+
+
+
+
 
 
 
